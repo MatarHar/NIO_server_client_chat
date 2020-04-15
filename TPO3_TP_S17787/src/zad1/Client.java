@@ -23,14 +23,23 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class Client {
-
 	
-  public Client(String string) throws InterruptedException, IOException {
-		  
-			InetSocketAddress crunchifyAddr = new InetSocketAddress("localhost", 1111);
+	public Client(String ThreadName) throws IOException, InterruptedException 
+	{
+		ClientWindow clientwindow = new ClientWindow(ThreadName);
+		InetSocketAddress socket = new InetSocketAddress("localhost", 8080);
+		SocketChannel channel = SocketChannel.open(socket);
+		info("Client " + ThreadName + " is connecting");
+		String message = "Hi there";
+		ByteBuffer buffer = ByteBuffer.wrap(message.getBytes());
+		channel.write(buffer);
+		buffer.clear();
+ 	}/*
+	//{	  
+			InetSocketAddress crunchifyAddr = new InetSocketAddress("localhost", 8080);
 			SocketChannel crunchifyClient = SocketChannel.open(crunchifyAddr);
 	 
-			log("Connecting to Server on port 1111...");
+			info("Connecting to Server on port 8080...");
 	 
 			ArrayList<String> companyDetails = new ArrayList<String>();
 	 
@@ -47,16 +56,16 @@ public class Client {
 				ByteBuffer buffer = ByteBuffer.wrap(message);
 				crunchifyClient.write(buffer);
 	 
-				log("sending: " + companyName);
+				info("sending: " + companyName);
 				buffer.clear();
 	 
 				// wait for 2 seconds before sending next message
-				Thread.sleep(2000);
+				Thread.sleep(500);
 			}
 			crunchifyClient.close();
-		}
+		}*/
 	 
-		private static void log(String str) {
+		private static void info(String str) {
 			System.out.println(str);
 		}
 

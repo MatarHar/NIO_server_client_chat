@@ -14,15 +14,16 @@ public class Main {
 	  new Thread() {
 		  public void run() {
 			  try {
+				System.out.println("Sever connecting");
 				new Server();
-			} catch (IOException e) {
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		  }
 	  }.start();
 	  try {
-		Thread.sleep(500);
+		Thread.sleep(1000);
 	} catch (InterruptedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -30,14 +31,17 @@ public class Main {
 	  new Thread() {
 		  public void run() {
 			  try {
+				System.out.println("First THREAD");
 				new Client("First Thread");
-			} catch (InterruptedException | IOException e) {
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		  }
 	  }.start();
-	  new Client("Second Thread");
+	  Thread.sleep(100000);
+	  System.out.println("Second THREAD");
+	  //new Client("Second Thread");
 	  
   }
 }
