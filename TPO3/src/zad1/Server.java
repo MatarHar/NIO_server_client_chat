@@ -16,10 +16,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
 public class Server {
+	
 	
 	public Server() throws IOException, InterruptedException {
 		Selector selector = Selector.open();
@@ -34,13 +37,15 @@ public class Server {
 			info("running all day long");
 			selector.select();
 			
-			Set<SelectionKey> SKey = selector.selectedKeys();
-			Iterator<SelectionKey> SIterator = SKey.iterator();
+			Set SKey = selector.selectedKeys();
+			Iterator SIterator = SKey.iterator();
 			
 			while (SIterator.hasNext()) {
+				Thread.sleep(1000);
 				info("**********HAS NEXT************");
-				SelectionKey Key = SIterator.next();
-				
+				SelectionKey Key = (SelectionKey) SIterator.next();
+				info(Boolean.toString(Key.isAcceptable()));
+				info(Boolean.toString(Key.isReadable()));
 				if (Key.isAcceptable()) {
 					SocketChannel Client = bigchannel.accept();
 					if (Client != null) {
@@ -52,7 +57,7 @@ public class Server {
 				else if (Key.isReadable()) {
 					info("Thread is readable");
 					SocketChannel Client = (SocketChannel) Key.channel();
-					ByteBuffer Buffer = ByteBuffer.allocate(256);
+					ByteBuffer Buffer = ByteBuffer.allocate(1024);
 					Client.read(Buffer);
 					String response = new String(Buffer.array()).trim();
 					

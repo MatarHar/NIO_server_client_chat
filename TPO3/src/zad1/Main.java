@@ -39,8 +39,8 @@ public class Main {
 			}
 		  }
 	  }.start();
-	  Thread.sleep(100000);
-	  System.out.println("Second THREAD");
+	  Thread.sleep(1000);
+	  //System.out.println("Second THREAD");
 	  //new Client("Second Thread");
 	  
   }
