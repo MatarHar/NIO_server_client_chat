@@ -7,56 +7,62 @@
 package zad1;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
 public class Client {
-	
-	
-	String Name;
 
+	public String TName;
+	public String UserName;
+	ChatWindow cwin;
+	public SocketChannel socketchannel;
 	public Client(String ThreadName) throws IOException, InterruptedException 
 	{
-		this.Name = ThreadName;
-		LogInWindow log = new LogInWindow(Name);
+		this.TName = ThreadName;
+		LogInWindow log = new LogInWindow(TName);
+		this.UserName = log.guest;
 		if(log.enter == true) {
-			info("+++++++++++++++CLIENTIN+++++++++++++++");
+			info("+++++++++++++++CLIENT IN+++++++++++++++");
 			setClient();
+			//info("Debugging 2");
+			cwin = new ChatWindow(this, UserName);
+			socketrun(cwin);
 		}
 		else {
-			info("---------------ClientNOTIn---------------");
+			info("---------------CLIENT NOT IN---------------");
 		}
 	}
+	
+	
+	private void socketrun(ChatWindow chat) {
+		while(true) {
+		String messageback = ServerServant.getmessage(this.socketchannel);
+		//info("Debugging 3");
+		chat.addmessage(messageback);	
+		}
+	}
+	
 	public void setClient() throws InterruptedException, IOException {
-		boolean LogIn = false;
-		//ClientWindow clientwindow = new ClientWindow(Name);
-		InetSocketAddress socket = new InetSocketAddress("localhost", 8080);
+		//info("Debugging 1");
+		int port = 8080;
+		InetSocketAddress socket = new InetSocketAddress("localhost", port);
 		SocketChannel channel = SocketChannel.open();
 		channel.connect(socket);
-		info("Client " + Name + " is connecting");
-		String message = "Hi there";
-		message += "\n";
-		ByteBuffer buffer = ByteBuffer.wrap(message.getBytes());
-		channel.write(buffer);
-		buffer.clear();
+		this.socketchannel = channel;
  	}
+	
 		private static void info(String str) {
 			System.out.println(str);
 		}
 
 public static void main(String[] args) throws IOException, InterruptedException {
 	  new Client(null);
-  }}
+  }
+public void writemessage(String line) {
+	try {
+		ServerServant.writemessage(this.socketchannel, (this.UserName + " :" + line));
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+}}

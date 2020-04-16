@@ -8,10 +8,6 @@ package zad1;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -22,30 +18,34 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class Server {
-	
+	public Selector selector;
+	public ServerSocketChannel bigchannel;
 	
 	public Server() throws IOException, InterruptedException {
-		Selector selector = Selector.open();
+		selector = Selector.open();
 		int port = 8080;
-		ServerSocketChannel bigchannel = ServerSocketChannel.open();
-		InetSocketAddress socket = new InetSocketAddress("localhost", 8080);
+		bigchannel = ServerSocketChannel.open();
+		InetSocketAddress socket = new InetSocketAddress("localhost", port);
 		bigchannel.bind(socket);
 		bigchannel.configureBlocking(false);
 		bigchannel.register(selector, SelectionKey.OP_ACCEPT);
+		serverrun();
+	}
 
+	private void serverrun() {
+		info("First iteration");
 		while(true) {
-			info("running all day long");
+			try {
+			//info("**********running all day long, next iteration**********");
 			selector.select();
 			
 			Set SKey = selector.selectedKeys();
 			Iterator SIterator = SKey.iterator();
 			
 			while (SIterator.hasNext()) {
-				Thread.sleep(1000);
-				info("**********HAS NEXT************");
 				SelectionKey Key = (SelectionKey) SIterator.next();
-				info(Boolean.toString(Key.isAcceptable()));
-				info(Boolean.toString(Key.isReadable()));
+				//info(Boolean.toString(Key.isAcceptable()));
+				//info(Boolean.toString(Key.isReadable()));
 				if (Key.isAcceptable()) {
 					SocketChannel Client = bigchannel.accept();
 					if (Client != null) {
@@ -57,20 +57,34 @@ public class Server {
 				else if (Key.isReadable()) {
 					info("Thread is readable");
 					SocketChannel Client = (SocketChannel) Key.channel();
-					ByteBuffer Buffer = ByteBuffer.allocate(1024);
-					Client.read(Buffer);
-					String response = new String(Buffer.array()).trim();
-					
+					String response = ServerServant.getmessage(Client);
 					info("Message is: " + response);
-					
-					if (response.equals("LogMeOut")) {
-						Client.close();
-						info("Client is being disconnected");
+					if(response.length() > 0) {
+						try {
+							selector.select();
+							Set SSKey = selector.selectedKeys();
+							Iterator SSIterator = SSKey.iterator();
+							while(SSIterator.hasNext()) {
+								SelectionKey KKey = (SelectionKey) SSIterator.next();
+								if (KKey.isWritable()) {
+									info("Thread is writable");
+									SocketChannel socketc = (SocketChannel) KKey.channel();
+									String str = (new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss").format(new Date()))
+											+ " " + response;
+									ServerServant.writemessage(socketc, str);;
+								}
+							}
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					}	
 					}
 				}
+			
+		} catch(Exception e) {
+			e.printStackTrace();		
+		}}
 			}
-		}
-	}
 
 	private void info(String string) {
 		System.out.println(string);

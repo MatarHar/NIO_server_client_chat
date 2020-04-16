@@ -21,17 +21,23 @@ public class LogInWindow extends JFrame implements ActionListener{
 	JPanel jpanel;
 	JLabel username;
 	JLabel password;
+	JLabel nickname;
 	JLabel error;
 	JTextField usernameF;
 	JPasswordField passwordF;
+	JTextField nicknameF;
 	JButton LogIn;
 	JButton Exit;
+	public String guest;
 	
 	public LogInWindow(String name) {
+		guest = "";
 		decision = false;
 		this.jpanel = new JPanel(new GridLayout(10,0));
 		this.username = new JLabel("Username: ");
 		this.password = new JLabel("Password: ");
+		this.nickname = new JLabel("Default method - guest. Nickname: ");
+		this.nicknameF = new JTextField();
 		this.error = new JLabel("");
 		this.usernameF = new JTextField();
 		this.passwordF = new JPasswordField();
@@ -43,13 +49,15 @@ public class LogInWindow extends JFrame implements ActionListener{
 		jpanel.add(usernameF);
 		jpanel.add(password);
 		jpanel.add(passwordF);
+		jpanel.add(nickname);
+		jpanel.add(nicknameF);
 		jpanel.add(error);
 		jpanel.add(LogIn);
 		jpanel.add(Exit);
 	        
         LogIn.addActionListener(this);
         Exit.addActionListener(this);
-        
+
         add(jpanel, BorderLayout.CENTER);
         setSize(400,300);
         setVisible(true);
@@ -70,25 +78,34 @@ public class LogInWindow extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent a) {
-		if(a.getSource() == LogIn) {
+		if(((a.getSource() == LogIn) && (((nicknameF.getText()).length()) > 0)) || 
+				(((nicknameF.getText()).length()) > 0)) {
+			System.out.println("Enter as a guest");
+			guest = nicknameF.getText().trim();
+			enter = true;
+			close();
+			decision = true;
+		}
+		else if((a.getSource() == LogIn) && ((passwordF.getPassword()).length > 0) || 
+				((passwordF.getPassword()).length > 0)) {
 			String pass = new String(passwordF.getPassword());
-			System.out.println(usernameF.getText());
-			System.out.println(passwordF.getPassword());
+			//System.out.println(usernameF.getText());
+			//System.out.println(passwordF.getPassword());
 			if (((usernameF.getText()).trim().equals("root")) &&
 			(pass.equals("root")) || 
 			(((usernameF.getText()).trim().equals("toor")) &&
 			(pass.equals("toor")))){
-				System.out.println("Enter");
+				System.out.println("Enter as a member");
 				enter = true;
 				close();
 				decision = true;
 			}
 			else {
-				error.setText("Wrong username or password |||| root, root |||| toor, toor ||||");
+				error.setText("Wrong username or password. For admin |||| root, root OR toor, toor ||||");
 			}
 		}
 		else if (a.getSource() == Exit) {
-			System.out.println("Exit");
+			System.out.println("------Exit------");
 			close();
 			decision = true;
 		}
